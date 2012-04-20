@@ -7,10 +7,12 @@ class DummyLogger
         $name = strtolower($name);
 
         if (!in_array($name, $allowedNames)) {
+            error_log("$name is not a method of DummyLogger");
             return;
         }
 
         if (count($arguments) !== 1) {
+            error_log("not exactly one argument to DummyLogger method");
             return;
         }
 
@@ -35,16 +37,16 @@ function basecamp_api_client($appName, $contactInfo, $accountId, $username,
 
     return function($method, $path, $params=array(), &$response_headers=array()) use ($baseUrl, $helloHeader, $logger)
     {
-        $url = $baseUrl.ltrim($path, '/');
+        $url = $baseUrl.'/'.ltrim($path, '/');
 
         $query = in_array($method, array('GET','DELETE')) ? $params : array();
 
         $payload = in_array($method, array('POST','PUT')) ? stripslashes(json_encode($params)) : array();
 
         $request_headers = in_array($method, array('POST','PUT')) ? array("Content-Type: application/json; charset=utf-8", 'Expect:') : array();
-        $request_headers[] = $helloheader;
+        $request_headers[] = $helloHeader;
 
-        $logger->debug("About to send API request: "
+        $logger->debug("About to send API request:\n"
                       .print_r(compact('method', 'url', 'query',
                                        'payload', 'request_headers'), 1));
 
@@ -52,15 +54,16 @@ function basecamp_api_client($appName, $contactInfo, $accountId, $username,
 
         $statusCode = $response_headers['http_status_code'];
         if ($statusCode >= 400) {
-            throw new Exception("HTTP error $statusCode:"
-                               .print_r(compact('method', 'path', 'params',
+            throw new Exception("HTTP error $statusCode:\n"
+                               .print_r(compact('method', 'url', 'query',
+                                                'payload', 'request_headers',
                                                 'response_headers', 'response',
                                                 'shops_myshopify_domain',
                                                 'shops_token'), 1));
         }
 
         return json_decode($response);
-    }
+    };
 }
 
 function curl_http_api_request_($method, $url, $query='', $payload='', $request_headers=array(), &$response_headers=array())
@@ -128,6 +131,5 @@ function curl_parse_headers_($message_headers)
     }
 
     return $headers;
-}
 }
 ?>
