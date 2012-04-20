@@ -58,7 +58,8 @@ try {
         'name' => 'My new project!',
     );
 
-    $basecamp('POST', '/projects.json', $project);
+    $newProject = $basecamp('POST', '/projects.json', $project);
+    echo "New project ID is {$newProject->id}\n";
 } catch ($e) {
     die($e->getMessage());
 }
