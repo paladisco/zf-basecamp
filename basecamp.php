@@ -32,10 +32,13 @@ function basecamp_api_client($appName, $contactInfo, $accountId, $username,
         $logger = new DummyLogger;
     }
 
-    $baseUrl = "https://$username:$password@basecamp.com/$accountId/api/v1";
+    $baseUrl = "https://basecamp.com/$accountId/api/v1";
+    $credentials = "$username:$password";
     $helloHeader = "User-Agent: $appName ($contactInfo)";
 
-    return function($method, $path, $params=array(), &$response_headers=array()) use ($baseUrl, $helloHeader, $logger)
+    return function($method, $path, $params=array(),
+        &$response_headers=array())
+    use ($baseUrl, $credentials, $helloHeader, $logger)
     {
         $url = $baseUrl.'/'.ltrim($path, '/');
 
@@ -50,7 +53,7 @@ function basecamp_api_client($appName, $contactInfo, $accountId, $username,
                       .print_r(compact('method', 'url', 'query',
                                        'payload', 'request_headers'), 1));
 
-        $response = curl_http_api_request_($method, $url, $query, $payload, $request_headers, $response_headers);
+        $response = curl_http_api_request_($method, $url, $credentials, $query, $payload, $request_headers, $response_headers);
 
         $statusCode = $response_headers['http_status_code'];
         if ($statusCode >= 400) {
@@ -66,11 +69,11 @@ function basecamp_api_client($appName, $contactInfo, $accountId, $username,
     };
 }
 
-function curl_http_api_request_($method, $url, $query='', $payload='', $request_headers=array(), &$response_headers=array())
+function curl_http_api_request_($method, $url, $credentials, $query='', $payload='', $request_headers=array(), &$response_headers=array())
 {
     $url = curl_append_query_($url, $query);
     $ch = curl_init($url);
-    curl_setopts_($ch, $method, $payload, $request_headers);
+    curl_setopts_($ch, $credentials, $method, $payload, $request_headers);
     $response = curl_exec($ch);
     $errno = curl_errno($ch);
     $error = curl_error($ch);
@@ -91,8 +94,9 @@ function curl_append_query_($url, $query)
     else return "$url?$query";
 }
 
-function curl_setopts_($ch, $method, $payload, $request_headers)
+function curl_setopts_($ch, $credentials, $method, $payload, $request_headers)
 {
+    curl_setopt($ch, CURLOPT_USERPWD, $credentials);
     curl_setopt($ch, CURLOPT_HEADER, true);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -109,13 +113,13 @@ function curl_setopts_($ch, $method, $payload, $request_headers)
     else
     {
         curl_setopt ($ch, CURLOPT_CUSTOMREQUEST, $method);
-        if (!empty($request_headers)) curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
         if (!empty($payload))
         {
             if (is_array($payload)) $payload = http_build_query($payload);
             curl_setopt ($ch, CURLOPT_POSTFIELDS, $payload);
         }
     }
+    if (!empty($request_headers)) curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
 }
 
 function curl_parse_headers_($message_headers)
