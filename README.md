@@ -24,9 +24,7 @@ $ mv bdunlap-basecamp.php-* basecamp.php
 
 ```php
 <?php
-
-	require 'path/to/basecamp.php/basecamp.php';
-
+require 'path/to/basecamp.php/basecamp.php';
 ?>
 ```
 
@@ -37,34 +35,33 @@ Making API calls:
 
 ```php
 <?php
+$appName = 'MyApp';
+$appContact = 'yourname@example.com';
 
-    $appName = 'MyApp';
-    $appContact = 'yourname@example.com';
+$basecampAccountId = '999999999';
+$basecampUsername = 'yourusername';
+$basecampPassword = 'yourpassword';
 
-    $basecampAccountId = '999999999';
-    $basecampUsername = 'yourusername';
-    $basecampPassword = 'yourpassword';
+$basecamp = basecamp_api_client($appName, $appContact,
+    $basecampAccountId, $basecampUsername, $basecampPassword);
 
-    $basecamp = basecamp_api_client($appName, $appContact,
-        $basecampAccountId, $basecampUsername, $basecampPassword);
+try {
+    /**
+     * Get a list of all projects:
+     */
+    $projects = $basecamp('GET', '/projects.json');
 
-    try {
-        /**
-         * Get a list of all projects:
-         */
-        $projects = $basecamp('GET', '/projects.json');
+    /**
+     * Create a new project:
+     */
+    $project = array(
+        'name' => 'My new project!',
+    );
 
-        /**
-         * Create a new project:
-         */
-        $project = array(
-            'name' => 'My new project!',
-        );
-
-        $basecamp('POST', '/projects.json', $project);
-	} catch ($e) {
-        die($e->getMessage());
-    }
+    $basecamp('POST', '/projects.json', $project);
+} catch ($e) {
+    die($e->getMessage());
+}
 ?>
 ```
 See the [Basecamp API docs](https://github.com/37signals/bcx-api#api-ready-for-use) for more interactions.
