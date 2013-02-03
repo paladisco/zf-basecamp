@@ -18,20 +18,14 @@ standard Basecamp API Calls into functions.
 ## Getting Started
 
 ### Download
-Download the [latest version of basecamp.php](https://github.com/bdunlap/basecamp.php/archives/master):
+Download the [latest version of zf-basecamp](https://github.com/paladisco/zf-basecamp):
 
 ```shell
-$ curl -L http://github.com/bdunlap/basecamp.php/tarball/master | tar xvz
-$ mv bdunlap-basecamp.php-* basecamp.php
+$ curl -L http://github.com/dpaladino/paladisco/zf-basecamp | tar xvz
 ```
 
-### Require
-
-```php
-<?php
-require 'path/to/basecamp.php/basecamp.php';
-?>
-```
+Add the folder 'library/Zend/Basecamp' to your local Zend Framework project (make sure the library lies in the
+include path of your project, which should be the case for standard ZF projects).
 
 ### Usage
 Currently supports private apps only.
@@ -40,34 +34,11 @@ Making API calls:
 
 ```php
 <?php
-$appName = 'MyApp';
-$appContact = 'yourname@example.com';
+    $basecamp = new Local_Basecamp_Api();
 
-$basecampAccountId = '999999999';
-$basecampUsername = 'yourusername';
-$basecampPassword = 'yourpassword';
+    $projects = $basecamp->getProjects();
 
-$basecamp = basecamp_api_client($appName, $appContact,
-    $basecampAccountId, $basecampUsername, $basecampPassword);
-
-try {
-    /**
-     * Get a list of all projects:
-     */
-    $projects = $basecamp('GET', '/projects.json');
-
-    /**
-     * Create a new project:
-     */
-    $project = array(
-        'name' => 'My new project!',
-    );
-
-    $newProject = $basecamp('POST', '/projects.json', $project);
-    echo "New project ID is {$newProject->id}\n";
-} catch ($e) {
-    die($e->getMessage());
-}
+    print_r($projects);
 ?>
 ```
 See the [Basecamp API docs](https://github.com/37signals/bcx-api#api-ready-for-use) for more interactions.
