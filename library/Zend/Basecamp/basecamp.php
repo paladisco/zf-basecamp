@@ -25,49 +25,7 @@ class DummyLogger
     }
 }
 
-function basecamp_api_client($appName, $contactInfo, $accountId, $username,
-    $password, $logger = NULL)
-{
-    if (is_null($logger)) {
-        $logger = new DummyLogger;
-    }
 
-    $baseUrl = "https://basecamp.com/$accountId/api/v1";
-    $credentials = "$username:$password";
-    $helloHeader = "User-Agent: $appName ($contactInfo)";
-
-    return function($method, $path, $params=array(),
-        &$response_headers=array())
-    use ($baseUrl, $credentials, $helloHeader, $logger)
-    {
-        $url = $baseUrl.'/'.ltrim($path, '/');
-
-        $query = in_array($method, array('GET','DELETE')) ? $params : array();
-
-        $payload = in_array($method, array('POST','PUT')) ? stripslashes(json_encode($params)) : array();
-
-        $request_headers = in_array($method, array('POST','PUT')) ? array("Content-Type: application/json; charset=utf-8", 'Expect:') : array();
-        $request_headers[] = $helloHeader;
-
-        $logger->debug("About to send API request:\n"
-                      .print_r(compact('method', 'url', 'query',
-                                       'payload', 'request_headers'), 1));
-
-        $response = curl_http_api_request_($method, $url, $credentials, $query, $payload, $request_headers, $response_headers);
-
-        $statusCode = $response_headers['http_status_code'];
-        if ($statusCode >= 400) {
-            throw new Exception("HTTP error $statusCode:\n"
-                               .print_r(compact('method', 'url', 'query',
-                                                'payload', 'request_headers',
-                                                'response_headers', 'response',
-                                                'shops_myshopify_domain',
-                                                'shops_token'), 1));
-        }
-
-        return json_decode($response);
-    };
-}
 
 function curl_http_api_request_($method, $url, $credentials, $query='', $payload='', $request_headers=array(), &$response_headers=array())
 {

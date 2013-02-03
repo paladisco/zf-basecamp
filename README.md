@@ -1,8 +1,13 @@
-# basecamp.php
+# zf-basecamp
 
-Lightweight multi-paradigm PHP (JSON) client for the new [Basecamp API](https://github.com/37signals/bcx-api).
+Lightweight Zend Framework compatible client for the new [Basecamp API](https://github.com/37signals/bcx-api).
 
-Many thanks to Sandeep Shetty, whose [Shopify client](https://github.com/sandeepshetty/shopify.php) provided the inspiration and much of the code for this project.
+The library is largely based on the work of Ben Dunlap who created the basic Library of which
+most of the credit here goes to him and to Sandeep Shetty, whose [Shopify client](https://github
+.com/sandeepshetty/shopify.php) provided the inspiration and much of the code for this project.
+
+I just took the whole thing and wrapped it into a nice Zend Framework compatible Library Class and wrapped some
+standard Basecamp API Calls into functions.
 
 
 ## Requirements
